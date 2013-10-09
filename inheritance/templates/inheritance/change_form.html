@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+
+{# A hack for "Override all" button #}
+{% block object-tools-items %}
+{{ block.super }}
+<li class="selected"><a href="#" id="override_all">Override all</a></li>
+{% endblock %}
+
+{% block field_sets %}
+{% for fieldset in adminform %}
+  {% include "inheritance/fieldset.html" %}
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,12 @@
+.form-row.inheritable {
+    /*float: left;*/
+    clear: left;
+}
+
+.form-row[class$="override"] {
+    float: right;
+    clear: both;
+    width: 100px;
+    margin-left: -100px;
+    border-bottom: none;
+}
