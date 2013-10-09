@@ -49,4 +49,4 @@ This app is being actively developed and used in a production system. But is it 
 Acknowledgements
 ----------------
 
-This app development is funded by Vboost Inc., http://vboost.com, and released to Open Source with permission. You can use, modify, and redistribute it under the terms of MIT software license.
+This app development is funded by Vboost Inc., http://vboost.com. Released to Open Source with permission. You can use, modify, and redistribute it under the terms of MIT software license.

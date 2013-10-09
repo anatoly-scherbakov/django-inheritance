@@ -10,10 +10,6 @@ class Inheritable(MPTTModel, DirtyFieldsMixin):
     Enables a Django model within an MPTT hierarchy to inherit field values from parent models.
     """
 
-    def resolve(self, key):
-        """For backward compatibility"""
-        return getattr(self, key)
-
     @property
     def parent(self):
         raise NotImplementedError("The model should define a 'parent' field of type TreeForeignKey.")
