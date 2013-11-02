@@ -2,12 +2,16 @@
 These are sample tests for the sample application.
 """
 
-from models import Company, NonForProfit
+from models import Company, NonForProfit, CEO
 from django.test import TestCase
 
 
 class UnsavedInheritanceTest(TestCase):
     """Test value inheritance of 'address' field of 'Company' model."""
+
+    def setUp(self):
+        self.ceo = CEO.objects.create(name='John')
+        self.ceo2 = CEO.objects.create(name='Bill')
 
     def instance(self, **kwargs):
         """Return a fresh unsaved model instance."""
@@ -17,10 +21,11 @@ class UnsavedInheritanceTest(TestCase):
     def test_orphan(self):
         """Company has no parents and has city set."""
 
-        c = self.instance(name='company', city='NY')
+        c = self.instance(name='company', city='NY', ceo=self.ceo)
 
         self.assertEqual(c.name, 'company')
         self.assertEqual(c.city, 'NY')
+        self.assertEqual(c.ceo, self.ceo)
 
     def test_orphan_empty(self):
         """Now, it is empty."""
@@ -29,24 +34,27 @@ class UnsavedInheritanceTest(TestCase):
 
         self.assertEqual(c.name, 'company')
         self.assertEqual(c.city, None)
+        self.assertEqual(c.ceo, None)
 
     def test_inherit(self):
         """A child inherits value from a parent."""
 
-        parent = self.instance(name='parent', city='NY')
+        parent = self.instance(name='parent', city='NY', ceo=self.ceo)
         child = self.instance(parent=parent, name='child')
 
         self.assertEqual(child.name, 'child')
         self.assertEqual(child.city, 'NY')
+        self.assertEqual(child.ceo, self.ceo)
 
     def test_override(self):
         """A child overrides the value got from parent."""
 
-        parent = self.instance(name='parent', city='NY')
-        child = self.instance(parent=parent, name='child', city='SPB')
+        parent = self.instance(name='parent', city='NY', ceo=self.ceo)
+        child = self.instance(parent=parent, name='child', city='SPB', ceo=self.ceo2)
 
         self.assertEqual(child.name, 'child')
         self.assertEqual(child.city, 'SPB')
+        self.assertEqual(child.ceo, self.ceo2)
 
 
 class UnsavedParentFieldInheritanceTest(UnsavedInheritanceTest):

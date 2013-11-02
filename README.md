@@ -29,8 +29,8 @@ Both of them can be installed by `pip`.
 
 * Copy `inheritance` folder somewhere at your Python path
 * Add `'inheritance'` to `INSTALLED_APPS`
-* Inherit the necessary model from `inheritance.models.Inheritable`
-* To establish a hierarchy on this model, add a `parent` field of type `mptt.TreeForeignKey`.
+* Inherit your model from `inheritance.models.Inheritable`
+* To set up the instance hierarchy, add a `parent` field of type `mptt.TreeForeignKey`.
 * Add `inherit_fields` attribute. It must be a tuple of names of fields which must be inherited. Note that these fields must have `blank=True` and `null=True`.
 * You can inherit your model admin class from `inheritance.admin.InheritanceAdmin` to enable a nice form with checkboxes in Django admin panel.
 
@@ -41,10 +41,10 @@ Status
 
 This app is being actively developed and used in a production system. But is it yet in alpha stage because many features are not implemented/tested. Known problems:
 
-* The application is not tested with any field types besides `CharField` and `TextField`.
+* Inheritance is not tested with any field types besides `CharField`, `TextField`, and `ForeignKey`.
 * You cannot use an empty value without inheriting parent value.
-* In model admin class, you must specify the `fieldsets` property.
-* There is no support for model forms (besides those in admin section).
+* In model admin class, you must specify the `fieldsets` property, or the app won't work.
+* There is no support for custom model forms (besides those used in admin section).
 
 Acknowledgements
 ----------------

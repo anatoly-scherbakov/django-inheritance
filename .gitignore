@@ -1,2 +1,3 @@
-.py[co]
+*.pyc
+*.pyo
 .idea/

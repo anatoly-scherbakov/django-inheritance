@@ -2,6 +2,9 @@ from django.db import models
 from inheritance.models import Inheritable
 from mptt.models import TreeForeignKey
 
+class CEO(models.Model):
+    name = models.CharField(max_length=100)
+
 class Company(Inheritable):
     """A company model with enabled inheritance."""
 
@@ -22,8 +25,11 @@ class Company(Inheritable):
     # Etc
     description = models.TextField(blank=True, null=True)
 
+    # Foreign field
+    ceo = models.ForeignKey(CEO, null=True, blank=True)
+
     # List of fields with inheritable values
-    inherit_fields = ('address', 'address2', 'city', 'state', 'zipcode', 'country', 'description')
+    inherit_fields = ('address', 'address2', 'city', 'state', 'zipcode', 'country', 'description', 'ceo')
 
     def __unicode__(self):
         return self.name
