@@ -4,7 +4,9 @@ These are sample tests for the sample application.
 
 from models import Company, NonForProfit, CEO
 from django.test import TestCase
+from django_webtest import DjangoTestApp, WebTest
 
+# region Test cases
 
 class UnsavedInheritanceTest(TestCase):
     """Test value inheritance of 'address' field of 'Company' model."""
@@ -89,6 +91,7 @@ class SavingInheritanceTest(UnsavedInheritanceTest):
 
         return instance
 
+
 class SavingParentFieldInheritanceTest(SavingInheritanceTest):
     """Parent field."""
 
@@ -97,3 +100,57 @@ class SavingParentFieldInheritanceTest(SavingInheritanceTest):
         instance.save()
 
         return instance
+
+# endregion
+
+# region Live test cases
+
+class AdminTest(WebTest):
+    fixtures = ('test_data.json', )
+
+    app_class = DjangoTestApp
+    csrf_checks = False
+
+    def change_form(self, pk):
+        return self.app.get(
+            '/admin/sampleapp/company/%s/' % pk,
+            user='admin'
+        ).form
+
+    def test_disabled_fields(self):
+        """Inherited fields are disabled."""
+
+        Company.objects.filter(pk=2).update(
+            ceo=None,
+            address='',
+            description=''
+        )
+
+        form = self.change_form(2)
+
+        # ceo, address, and description are inherited. name is not.
+        inherited_fields = ('ceo', 'address', 'description')
+        overridden_fields = ('country', )
+
+        for field in inherited_fields:
+            value = form['%s_override' % field].value
+
+            self.assertEqual(
+                value, None,
+                'Field %s seems to have "override" %s' % (field, value)
+            )
+            self.assertTrue(
+                form.fields[field][0].attrs.get('disabled', False),
+                'Field %s does not seem to be disabled' % field
+            )
+
+        for field in overridden_fields:
+            self.assertEqual(
+                form['%s_override' % field].value, 'on',
+                'Field %s seems to have "override" off' % field
+            )
+            self.assertTrue(not form.fields[field][0].attrs.get('disabled', False))
+
+
+
+# endregion

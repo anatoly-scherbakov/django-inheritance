@@ -2,8 +2,17 @@ from django.db import models
 from inheritance.models import Inheritable
 from mptt.models import TreeForeignKey
 
+
 class CEO(models.Model):
     name = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'CEO'
+        verbose_name_plural = 'CEOs'
+
 
 class Company(Inheritable):
     """A company model with enabled inheritance."""

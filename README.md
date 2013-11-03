@@ -20,21 +20,57 @@ As `child.city` is empty, it inherits value from parent object.
 Usage
 -----
 
-Requirements:
-
-* django-mptt
-* django-dirtyfields
-
-Both of them can be installed by `pip`.
-
+* Install prerequisites:
+```bash
+pip install django-mptt
+pip install django-dirtyfields
+```
 * Copy `inheritance` folder somewhere at your Python path
 * Add `'inheritance'` to `INSTALLED_APPS`
-* Inherit your model from `inheritance.models.Inheritable`
-* To set up the instance hierarchy, add a `parent` field of type `mptt.TreeForeignKey`.
-* Add `inherit_fields` attribute. It must be a tuple of names of fields which must be inherited. Note that these fields must have `blank=True` and `null=True`.
-* You can inherit your model admin class from `inheritance.admin.InheritanceAdmin` to enable a nice form with checkboxes in Django admin panel.
+* Set up the target model:
+```python
+from django.db import models
+from inheritance.models import Inheritable
+from mptt.fields import TreeForeignKey
+
+class MyModel(Inheritable):
+    # Required for mptt. Denotes the model hierarchy.
+    parent = TreeForeignKey('self')
+
+    # Your own fields... For example:
+    name = models.CharField(max_length=100)
+    desc = models.TextField()
+
+    # List all the inheritable fields
+    inherit_fields = ('description', )
+```
+* Optionally, if you use Django admin, you can set up a ModelAdmin for your model:
+  ```python
+  from django.contrib.admin import site
+  from inheritance.admin import InheritanceAdmin
+
+  class MyAdmin(InheritanceAdmin):
+      fieldsets = (
+          (None, {'fields': ('name', 'desc')}),
+      )
+  ```
 
 You can see a working Django example project at `sampleproject` directory. Just run `./manage.py runserver` there. Run `./manage.py test sampleapp` to test how it works if you make any changes to the code.
+
+Development
+-----------
+
+For tests, you need to install webtest:
+
+```bash
+pip install django_webtest
+```
+
+and run
+
+```bash
+./manage.py test sampleapp
+```
 
 Status
 ------

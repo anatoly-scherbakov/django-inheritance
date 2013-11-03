@@ -52,7 +52,17 @@ class Inheritable(MPTTModel, DirtyFieldsMixin):
         which are local to the model, but not those which are inherited from parent models.
         Here, we fix it. See also: https://github.com/smn/django-dirtyfields/pull/3
         """
-        return dict([(f.name, getattr(self, f.name)) for f in self._meta.fields if not f.rel])
+        values = {}
+        for field in self._meta.fields:
+            name = field.name
+            try:
+                value = getattr(self, name)
+            except:
+                value = None
+
+            values[name] = value
+
+        return values
 
     def save(self, *args, **kwargs):
         """If an inheritable field is:

@@ -28,8 +28,17 @@ class InheritanceForm(forms.ModelForm):
 
                 # Disable inherited fields
                 if not is_overridden:
-                    self.fields[field].widget.attrs['disabled'] = True
-    
+                    widget = self.fields[field].widget
+
+                    # If this has got an inner widget, select it instead. Applies to RelatedAdminWidgetWrapper.
+                    subwidget = getattr(widget, 'widget', None)
+                    if subwidget:
+                        widget.can_add_related = False
+                        widget = subwidget
+
+                    # Disable it
+                    widget.attrs['disabled'] = 'disabled'
+
     def save(self, *args, **kwargs):
         """Save form logic.
 
