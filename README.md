@@ -21,13 +21,16 @@ Usage
 -----
 
 * Install prerequisites:
+
 ```bash
 pip install django-mptt
 pip install django-dirtyfields
 ```
+
 * Copy `inheritance` folder somewhere at your Python path
 * Add `'inheritance'` to `INSTALLED_APPS`
 * Set up the target model:
+
 ```python
 from django.db import models
 from inheritance.models import Inheritable
@@ -44,16 +47,18 @@ class MyModel(Inheritable):
     # List all the inheritable fields
     inherit_fields = ('description', )
 ```
-* Optionally, if you use Django admin, you can set up a ModelAdmin for your model:
-  ```python
-  from django.contrib.admin import site
-  from inheritance.admin import InheritanceAdmin
 
-  class MyAdmin(InheritanceAdmin):
-      fieldsets = (
-          (None, {'fields': ('name', 'desc')}),
-      )
-  ```
+* Optionally, if you use Django admin, you can set up a ModelAdmin for your model:
+
+```python
+from django.contrib.admin import site
+from inheritance.admin import InheritanceAdmin
+
+class MyAdmin(InheritanceAdmin):
+    fieldsets = (
+        (None, {'fields': ('name', 'desc')}),
+    )
+```
 
 You can see a working Django example project at `sampleproject` directory. Just run `./manage.py runserver` there. Run `./manage.py test sampleapp` to test how it works if you make any changes to the code.
 
