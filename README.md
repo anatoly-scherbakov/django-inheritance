@@ -27,8 +27,17 @@ pip install django-mptt
 pip install django-dirtyfields
 ```
 
-* Copy `inheritance` folder somewhere at your Python path
-* Add `'inheritance'` to `INSTALLED_APPS`
+* Copy `inheritance` folder somewhere at your Python path (for example, straight to your project folder).
+* Set up your `INSTALLED_APPS`:
+
+```python
+INSTALLED_APPS = (
+    ...
+    'mptt',
+    'inheritance',
+)
+```
+
 * Set up the target model:
 
 ```python
@@ -60,7 +69,11 @@ class MyAdmin(InheritanceAdmin):
     )
 ```
 
-You can see a working Django example project at `sampleproject` directory. Just run `./manage.py runserver` there. Run `./manage.py test sampleapp` to test how it works if you make any changes to the code.
+You can see a working Django example project at `sampleproject` directory. Just run there:
+
+```python
+./manage.py runserver
+```
 
 Development
 -----------
@@ -80,12 +93,13 @@ and run
 Status
 ------
 
-This app is being actively developed and used in a production system. But is it yet in alpha stage because many features are not implemented/tested. Known problems:
+This app is being actively developed and used in a production system under Python 2.6/2.7 and Django 1.6. But is it yet in alpha stage because many features are not implemented/tested. Known problems:
 
-* Inheritance is not tested with any field types besides `CharField`, `TextField`, and `ForeignKey`.
+* Not tested with any field types besides `CharField`, `TextField`, and `ForeignKey`.
 * You cannot use an empty value without inheriting parent value.
-* In model admin class, you must specify the `fieldsets` property, or the app won't work.
+* In model admin class, you must specify the `fieldsets` property for the app to work.
 * There is no support for custom model forms (besides those used in admin section).
+* No support for inherited attached inline models. In other words, if parent company has an Asset object attached, cannot be inherited by a child company.
 
 Acknowledgements
 ----------------

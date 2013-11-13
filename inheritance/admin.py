@@ -4,10 +4,19 @@ from django.contrib.admin import ModelAdmin
 from django.core.exceptions import ImproperlyConfigured
 from copy import deepcopy
 from forms import InheritanceForm
+from mptt.admin import MPTTModelAdmin
 
 class InheritanceAdmin(ModelAdmin):
     change_form_template = "inheritance/change_form.html"
     form = InheritanceForm
+
+    def __init__(self, model, admin_site):
+        super(InheritanceAdmin, self).__init__(model, admin_site)
+
+        self.exclude = self.exclude or []
+
+        for field in model.inherit_fields:
+            self.exclude.append('%s_override' % field)
 
     def get_fieldsets(self, request, obj=None):
         """Hook for specifying fieldsets for the add form.
