@@ -1,0 +1,6 @@
+Django>=1.7
+django-mptt
+https://github.com/smn/django-dirtyfields/archive/develop.zip
+
+webtest
+django-webtest

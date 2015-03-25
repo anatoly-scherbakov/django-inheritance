@@ -3,12 +3,11 @@ These are sample tests for the sample application.
 """
 
 from models import Company, NonForProfit, CEO
-from django.test import TestCase
+from django import test
+import unittest
 from django_webtest import DjangoTestApp, WebTest
 
-# region Test cases
-
-class UnsavedInheritanceTest(TestCase):
+class InheritTest(test.TestCase):
     """Test value inheritance of 'address' field of 'Company' model."""
 
     def setUp(self):
@@ -17,8 +16,7 @@ class UnsavedInheritanceTest(TestCase):
 
     def instance(self, **kwargs):
         """Return a fresh unsaved model instance."""
-
-        return Company(**kwargs)
+        return Company.objects.create(**kwargs)
 
     def test_orphan(self):
         """Company has no parents and has city set."""
@@ -35,7 +33,7 @@ class UnsavedInheritanceTest(TestCase):
         c = self.instance(name='company')
 
         self.assertEqual(c.name, 'company')
-        self.assertEqual(c.city, None)
+        self.assertEqual(c.city, '')
         self.assertEqual(c.ceo, None)
 
     def test_inherit(self):
@@ -43,6 +41,7 @@ class UnsavedInheritanceTest(TestCase):
 
         parent = self.instance(name='parent', city='NY', ceo=self.ceo)
         child = self.instance(parent=parent, name='child')
+        child._inherit()
 
         self.assertEqual(child.name, 'child')
         self.assertEqual(child.city, 'NY')
@@ -53,57 +52,60 @@ class UnsavedInheritanceTest(TestCase):
 
         parent = self.instance(name='parent', city='NY', ceo=self.ceo)
         child = self.instance(parent=parent, name='child', city='SPB', ceo=self.ceo2)
+        child._inherit()
 
         self.assertEqual(child.name, 'child')
         self.assertEqual(child.city, 'SPB')
         self.assertEqual(child.ceo, self.ceo2)
 
+    def test_manager(self):
+        parent = self.instance(name='parent', city='NY', ceo=self.ceo)
+        child = self.instance(parent=parent, name='child')
 
-class UnsavedParentFieldInheritanceTest(UnsavedInheritanceTest):
-    """Using the model field which is not local but inherited from another model class."""
+        child_inherited = child.__class__.objects.get_inherited(
+            id=child.id
+        )
 
-    def instance(self, **kwargs):
-        """Return a fresh unsaved model instance."""
+        self.assertEqual(child_inherited.city, 'NY')
 
-        return NonForProfit(**kwargs)
-
-
-class SavedInheritanceTest(UnsavedInheritanceTest):
-    """Everything the same, but model instances are saved."""
-
-    def instance(self, **kwargs):
-        return Company.objects.create(**kwargs)
-
-
-class SavedParentFieldInheritanceTest(SavedInheritanceTest):
-    """Parent field."""
+class InheritableChildModelTest(InheritTest):
+    """An child (inherited) model is also inheritable."""
 
     def instance(self, **kwargs):
         return NonForProfit.objects.create(**kwargs)
 
 
-class SavingInheritanceTest(UnsavedInheritanceTest):
-    """Just as in previous cases, but the instance is being saved to the db."""
-
-    def instance(self, **kwargs):
-        instance = Company(**kwargs)
-        instance.save()
-
-        return instance
-
-
-class SavingParentFieldInheritanceTest(SavingInheritanceTest):
+class SaveTest(InheritTest):
     """Parent field."""
 
     def instance(self, **kwargs):
-        instance = NonForProfit(**kwargs)
-        instance.save()
+        return Company.objects.create(**kwargs)
 
-        return instance
+    def test_save_inherit_none(self):
+        parent = self.instance(name='parent', city='NY', ceo=self.ceo)
+        child = self.instance(parent=parent, name='child')
+        child._inherit() # Now city = 'NY'
 
-# endregion
+        child.save() # We do not modify it and save
 
-# region Live test cases
+        self.assertEqual(
+            Company.objects.get(name='child').city,
+            ''
+        ) # City should be None
+
+    def test_save_override(self):
+        parent = self.instance(name='parent', city='NY', ceo=self.ceo)
+        child = self.instance(parent=parent, name='child')
+        child._inherit() # Now city = 'NY'
+
+        child.city = 'SPB'
+        child.save() # Modified
+
+        self.assertEqual(
+            Company.objects.get(name='child').city,
+            'SPB'
+        ) # City should be None
+
 
 class AdminTest(WebTest):
     fixtures = ('test_data.json', )
@@ -117,7 +119,7 @@ class AdminTest(WebTest):
             user='admin'
         ).form
 
-    def test_disabled_fields(self):
+    def __test_disabled_fields(self):
         """Inherited fields are disabled."""
 
         Company.objects.filter(pk=2).update(
@@ -151,6 +153,3 @@ class AdminTest(WebTest):
             )
             self.assertTrue(not form.fields[field][0].attrs.get('disabled', False))
 
-
-
-# endregion

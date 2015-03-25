@@ -2,11 +2,27 @@
 
 from django import forms
 
-class InheritanceForm(forms.ModelForm):
+
+class InheritableForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+        super(InheritableForm, self).__init__(*args, **kwargs)
+
+        if self.instance and self.instance.parent:
+            # Get parent of the current instance
+            parent = self.instance.__class__.objects.get_inherited(
+                id=self.instance.parent.pk
+            )
+
+            # Add placeholders
+            for field in self.instance.inheritable_fields:
+                self.fields[field].widget.attrs.update({
+                    'placeholder': getattr(parent, field),
+                })
+
+    def ____init__(self, *args, **kwargs):
         """On init, the form adds "Override" checkboxes and sets their values."""
 
-        super(InheritanceForm, self).__init__(*args, **kwargs)
+        super(InheritableForm, self).__init__(*args, **kwargs)
 
         # A checkbox must be added to every inheritable field.
         for field in self.instance.inherit_fields:
@@ -39,7 +55,7 @@ class InheritanceForm(forms.ModelForm):
                     # Disable it
                     widget.attrs['disabled'] = 'disabled'
 
-    def save(self, *args, **kwargs):
+    def __save(self, *args, **kwargs):
         """Save form logic.
 
         In essence, the form should set not-overridden but inherited fields to None. Just it."""
@@ -50,7 +66,7 @@ class InheritanceForm(forms.ModelForm):
             if data.get(field, None) and not data.get('%s_override' % field, True):
                 data[field] = ''
 
-        return super(InheritanceForm, self).save(*args, **kwargs)
+        return super(InheritableForm, self).save(*args, **kwargs)
         
 
 

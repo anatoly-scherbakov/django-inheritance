@@ -1,16 +1,15 @@
-from models import Company, CEO
-from inheritance.admin import InheritanceAdmin
-from django.contrib.admin import site, ModelAdmin
+from django.contrib import admin
+from inheritance.forms import InheritableForm
+import models
 
-class CompanyAdmin(InheritanceAdmin):
+@admin.register(models.Company)
+class CompanyAdmin(admin.ModelAdmin):
+    form = InheritableForm
+
     fieldsets = (
         (None, {'fields': ('name', 'parent', 'ceo')}),
         ('Location', {'fields': ('address', 'address2', 'city', 'state', 'zipcode', 'country')}),
         ('About', {'fields': ('description', )}),
     )
 
-class CeoAdmin(ModelAdmin):
-    pass
-
-site.register(Company, CompanyAdmin)
-site.register(CEO, CeoAdmin)
+admin.site.register(models.CEO)

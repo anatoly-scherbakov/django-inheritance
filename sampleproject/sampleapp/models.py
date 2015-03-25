@@ -24,21 +24,24 @@ class Company(Inheritable):
     name = models.CharField('Company name', max_length=100, unique=True)
 
     # Address data
-    address = models.CharField('Address', max_length=100, blank=True, null=True)
-    address2 = models.CharField('Address 2', max_length=100, blank=True, null=True)
-    city = models.CharField(max_length=100, blank=True, null=True)
-    state = models.CharField(max_length=100, blank=True, null=True)
-    zipcode = models.CharField('Zip Code', max_length=11, blank=True, null=True)
-    country = models.CharField(max_length=2, blank=True, null=True)
+    address = models.CharField('Address', max_length=100, blank=True)
+    address2 = models.CharField('Address 2', max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    zipcode = models.CharField('Zip Code', max_length=11, blank=True)
+    country = models.CharField(max_length=2, blank=True)
 
     # Etc
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True)
 
     # Foreign field
-    ceo = models.ForeignKey(CEO, null=True, blank=True)
+    ceo = models.ForeignKey(CEO, blank=True, null=True)
 
     # List of fields with inheritable values
-    inherit_fields = ('address', 'address2', 'city', 'state', 'zipcode', 'country', 'description', 'ceo')
+    inheritable_fields = [
+        'address', 'address2', 'city', 'state', 'zipcode', 'country',
+        'description', 'ceo'
+    ]
 
     def __unicode__(self):
         return self.name
